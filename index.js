@@ -1,9 +1,10 @@
+require("dotenv").config();
+
 const express = require("express");
 const app = express();
 const cors = require("cors");
 const port = 3000;
-require("dotenv").config();
-const { MongoClient, ObjectId, ServerApiVersion } = require("mongodb"); // Import ObjectId
+const { MongoClient, ObjectId, ServerApiVersion } = require("mongodb"); 
 
 // Middleware
 app.use(cors());
@@ -24,8 +25,8 @@ const client = new MongoClient(uri, {
 
 async function connectToDatabase() {
   try {
-    await client.connect();
-    console.log("Connected to MongoDB!");
+    // await client.connect(); //no need 
+    // console.log("Connected to MongoDB!");
     const db = client.db("BDSports");
     const collection = db.collection("products");
 
@@ -34,7 +35,7 @@ async function connectToDatabase() {
         const data = await collection.find({}).toArray();
         res.json(data);
       } catch (error) {
-        console.error("Error fetching data from database:", error);
+        // console.error("Error fetching data from database:", error);
         res.status(500).send("Error fetching data from database");
       }
     });
@@ -44,7 +45,7 @@ async function connectToDatabase() {
         const data = await collection.insertOne(req.body);
         res.json(data);
       } catch (error) {
-        console.error("Error inserting data into database:", error);
+        // console.error("Error inserting data into database:", error);
         res.status(500).send("Error inserting data into database");
       }
     });
@@ -60,7 +61,7 @@ async function connectToDatabase() {
           res.status(404).send("Product not found");
         }
       } catch (error) {
-        console.error("Error deleting data:", error);
+        // console.error("Error deleting data:", error);
         res.status(500).send("Error deleting data");
       }
     });
@@ -83,7 +84,7 @@ async function connectToDatabase() {
           res.status(404).json({ error: "Product not found" });
         }
       } catch (error) {
-        console.error("Error updating product:", error);
+        // console.error("Error updating product:", error);
         res.status(500).json({ error: "Error updating product" });
       }
     });
@@ -99,12 +100,13 @@ async function connectToDatabase() {
           res.status(404).json({ error: "Product not found" });
         }
       } catch (error) {
-        console.error("Error fetching product:", error);
+        // console.error("Error fetching product:", error);
         res.status(500).json({ error: "Error fetching product" });
       }
     });
   } catch (error) {
-    console.error("Failed to connect to MongoDB:", error.message);
+   
+    // console.error("Failed to connect to MongoDB:", error.message);
     process.exit(1);
   }
 }
