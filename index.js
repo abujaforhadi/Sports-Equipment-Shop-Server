@@ -29,7 +29,6 @@ async function connectToDatabase() {
     const db = client.db("BDSports");
     const collection = db.collection("products");
 
-   
     app.get("/data", async (req, res) => {
       try {
         const data = await collection.find({}).toArray();
@@ -50,23 +49,60 @@ async function connectToDatabase() {
       }
     });
 
-    app.get("/data/:id", async (req, res) => {
-      const { id } = req.params; 
-      console.log(`Fetching product with id: ${id}`);
+    // Delete data
+    app.delete("/data/:id", async (req, res) => {
+      const { id } = req.params;
       try {
-        const product = await collection.findOne({ _id: new ObjectId(id) }); 
-        if (product) {
-          res.json(product); 
+        const result = await collection.deleteOne({ _id: new ObjectId(id) });
+        if (result.deletedCount > 0) {
+          res.status(200).send("Deleted successfully");
         } else {
-          console.log("Product not found");
-          res.status(404).json({ error: "Product not found" }); 
+          res.status(404).send("Product not found");
         }
       } catch (error) {
-        console.error("Error fetching product:", error); 
-        res.status(500).json({ error: "Error fetching product" }); 
+        console.error("Error deleting data:", error);
+        res.status(500).send("Error deleting data");
+      }
+    });
+
+    app.put("/data/:id", async (req, res) => {
+      const { id } = req.params;
+      const updateData = req.body;
+    
+      delete updateData._id;
+    
+      try {
+        const result = await collection.updateOne(
+          { _id: new ObjectId(id) },
+          { $set: updateData }
+        );
+    
+        if (result.matchedCount > 0) {
+          res.status(200).json({ message: "Product updated successfully" });
+        } else {
+          res.status(404).json({ error: "Product not found" });
+        }
+      } catch (error) {
+        console.error("Error updating product:", error);
+        res.status(500).json({ error: "Error updating product" });
       }
     });
     
+
+    app.get("/data/:id", async (req, res) => {
+      const { id } = req.params;
+      try {
+        const product = await collection.findOne({ _id: new ObjectId(id) });
+        if (product) {
+          res.json(product);
+        } else {
+          res.status(404).json({ error: "Product not found" });
+        }
+      } catch (error) {
+        console.error("Error fetching product:", error);
+        res.status(500).json({ error: "Error fetching product" });
+      }
+    });
   } catch (error) {
     console.error("Failed to connect to MongoDB:", error.message);
     process.exit(1);
