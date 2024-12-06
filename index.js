@@ -23,23 +23,12 @@ const client = new MongoClient(uri, {
   },
 });
 
-async function connectToDatabase() {
+ function connectToDatabase() {
   try {
     // await client.connect(); //no need 
     // console.log("Connected to MongoDB!");
     const db = client.db("BDSports");
     const collection = db.collection("products");
-
-    app.get("/data", async (req, res) => {
-      try {
-        const data = await collection.find({}).toArray();
-        res.json(data);
-      } catch (error) {
-        // console.error("Error fetching data from database:", error);
-        res.status(500).send("Error fetching data from database");
-      }
-    });
-
     app.post("/data", async (req, res) => {
       try {
         const data = await collection.insertOne(req.body);
@@ -50,7 +39,17 @@ async function connectToDatabase() {
       }
     });
 
-    // Delete data
+    app.get("/data", async (req, res) => {
+      try {
+        const data = await collection.find({}).toArray();
+        res.json(data);
+      } catch (error) {
+        res.status(500).send("Error fetching data from database");
+      }
+    });
+
+   
+
     app.delete("/data/:id", async (req, res) => {
       const { id } = req.params;
       try {
@@ -65,6 +64,16 @@ async function connectToDatabase() {
         res.status(500).send("Error deleting data");
       }
     });
+    app.get("/data-limit", async (req, res) => {
+      try {
+       
+        const data = await collection.find({}).limit(6).toArray();
+        res.json(data);
+      } catch (error) {
+        res.status(500).send("Error fetching data from database");
+      }
+    });
+    
 
     app.put("/data/:id", async (req, res) => {
       const { id } = req.params;
@@ -114,8 +123,8 @@ async function connectToDatabase() {
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
-
-app.listen(port, async () => {
-  await connectToDatabase();
+connectToDatabase();
+app.listen(port,  () => {
+   
   console.log(`Server running at http://localhost:${port}`);
 });
