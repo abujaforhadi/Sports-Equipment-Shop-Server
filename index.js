@@ -4,7 +4,7 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const port = 3000;
-const { MongoClient, ObjectId, ServerApiVersion } = require("mongodb"); 
+const { MongoClient, ObjectId, ServerApiVersion } = require("mongodb");
 
 // Middleware
 app.use(cors());
@@ -23,9 +23,9 @@ const client = new MongoClient(uri, {
   },
 });
 
- function connectToDatabase() {
+function connectToDatabase() {
   try {
-    // await client.connect(); //no need 
+    // await client.connect(); //no need
     // console.log("Connected to MongoDB!");
     const db = client.db("BDSports");
     const collection = db.collection("products");
@@ -48,8 +48,6 @@ const client = new MongoClient(uri, {
       }
     });
 
-   
-
     app.delete("/data/:id", async (req, res) => {
       const { id } = req.params;
       try {
@@ -66,27 +64,25 @@ const client = new MongoClient(uri, {
     });
     app.get("/data-limit", async (req, res) => {
       try {
-        const data = await collection.aggregate([{ $sample: { size: 6 } }]).toArray();
+        const data = await collection.find({}).limit(6).toArray();
         res.json(data);
       } catch (error) {
-        res.status(500).send("Error fetching random data from database");
+        res.status(500).send("Error fetching limited data from database");
       }
     });
     
-    
-
     app.put("/data/:id", async (req, res) => {
       const { id } = req.params;
       const updateData = req.body;
-    
+
       delete updateData._id;
-    
+
       try {
         const result = await collection.updateOne(
           { _id: new ObjectId(id) },
           { $set: updateData }
         );
-    
+
         if (result.matchedCount > 0) {
           res.status(200).json({ message: "Product updated successfully" });
         } else {
@@ -97,7 +93,6 @@ const client = new MongoClient(uri, {
         res.status(500).json({ error: "Error updating product" });
       }
     });
-    
 
     app.get("/data/:id", async (req, res) => {
       const { id } = req.params;
@@ -114,7 +109,6 @@ const client = new MongoClient(uri, {
       }
     });
   } catch (error) {
-   
     // console.error("Failed to connect to MongoDB:", error.message);
     process.exit(1);
   }
@@ -124,7 +118,6 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 connectToDatabase();
-app.listen(port,  () => {
-   
+app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
