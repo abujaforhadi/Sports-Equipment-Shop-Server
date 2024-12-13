@@ -62,7 +62,7 @@ function connectToDatabase() {
         res.status(500).send("Error deleting data");
       }
     });
-    app.get("/data-random", async (req, res) => {
+    app.get("/data-limit", async (req, res) => {
   try {
     const data = await collection.aggregate([{ $sample: { size: 6 } }]).toArray();
     res.json(data);
