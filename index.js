@@ -62,14 +62,16 @@ function connectToDatabase() {
         res.status(500).send("Error deleting data");
       }
     });
-    app.get("/data-limit", async (req, res) => {
-      try {
-        const data = await collection.find({}).limit(6).toArray();
-        res.json(data);
-      } catch (error) {
-        res.status(500).send("Error fetching limited data from database");
-      }
-    });
+    app.get("/data-random", async (req, res) => {
+  try {
+    const data = await collection.aggregate([{ $sample: { size: 6 } }]).toArray();
+    res.json(data);
+  } catch (error) {
+    console.error("Error fetching random data:", error);
+    res.status(500).send("Error fetching random data from database");
+  }
+});
+
     
     app.put("/data/:id", async (req, res) => {
       const { id } = req.params;
